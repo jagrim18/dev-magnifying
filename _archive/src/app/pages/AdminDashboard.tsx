@@ -614,13 +614,30 @@ function ProductForm({
 
       <div className="space-y-2">
         <Label htmlFor="brand">Brand</Label>
-        <Input
-          id="brand"
-          name="brand"
+        <Select
           value={formData.brand}
-          onChange={handleChange}
-          placeholder="e.g., Samsung, LG, Generic"
-        />
+          onValueChange={(value) =>
+            setFormData((prev: any) => ({ ...prev, brand: value }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a brand" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Samsung">Samsung</SelectItem>
+            <SelectItem value="LG">LG</SelectItem>
+            <SelectItem value="Dell">Dell</SelectItem>
+            <SelectItem value="HP">HP</SelectItem>
+            <SelectItem value="Lenovo">Lenovo</SelectItem>
+            <SelectItem value="Acer">Acer</SelectItem>
+            <SelectItem value="Asus">Asus</SelectItem>
+            <SelectItem value="CP Plus">CP Plus</SelectItem>
+            <SelectItem value="Hikvision">Hikvision</SelectItem>
+            <SelectItem value="Dahua">Dahua</SelectItem>
+            <SelectItem value="Generic">Generic</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
