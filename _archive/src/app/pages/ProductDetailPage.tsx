@@ -6,6 +6,7 @@ import { Card } from "../components/ui/card";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { motion } from "motion/react";
 import api from "../../api";
+import { products as mockProducts, categories as mockCategories } from "../data/products";
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,36 +18,25 @@ export function ProductDetailPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [productRes, allProductsRes] = await Promise.all([
-          api.get(`/products/${id}`),
-          api.get('/products')
-        ]);
-        
-        const p = productRes.data;
+        const p = mockProducts.find(prod => prod.id === id);
+        if (!p) {
+          setProduct(null);
+          setIsLoading(false);
+          return;
+        }
+
         const fetchedProduct = {
-          id: p._id,
-          name: p.name,
-          category: p.category?.slug || p.category,
-          categoryName: p.category?.name || 'Category',
-          description: p.description,
-          specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
-          image: p.images?.[0] || 'placeholder',
-          featured: p.isFeatured
+          ...p,
+          categoryName: mockCategories.find(c => c.id === p.category)?.name || 'Category',
         };
         setProduct(fetchedProduct);
         
         // Find related products in the same category
-        const related = allProductsRes.data
-          .filter((item: any) => 
-            (item.category?.slug === fetchedProduct.category || item.category === fetchedProduct.category) && 
-            item._id !== fetchedProduct.id
-          )
+        const related = mockProducts
+          .filter((item: any) => item.category === p.category && item.id !== p.id)
           .slice(0, 3)
           .map((item: any) => ({
-            id: item._id,
-            name: item.name,
-            description: item.description,
-            image: item.images?.[0] || 'placeholder'
+            ...item,
           }));
         
         setRelatedProducts(related);
@@ -90,7 +80,7 @@ export function ProductDetailPage() {
     api.post("/analytics/inquiry", { productId: product.id }).catch(console.error);
     const message = `Hi, I'm interested in the ${product.name} (Product ID: ${product.id}). Can you provide pricing and availability?`;
     window.open(
-      `https://wa.me/15551234567?text=${encodeURIComponent(message)}`,
+      `https://wa.me/918829975919?text=${encodeURIComponent(message)}`,
       "_blank"
     );
   };
