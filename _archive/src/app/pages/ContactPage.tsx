@@ -44,8 +44,7 @@ export function ContactPage() {
       icon: MessageCircle,
       title: "WhatsApp",
       description: "Get instant responses",
-      value: "+91 8829975919
-",
+      value: "+91 8829975919",
       action: "Chat Now",
       link: "https://wa.me/15551234567",
     },
@@ -61,8 +60,7 @@ export function ContactPage() {
       icon: Phone,
       title: "Phone",
       description: "Mon-Fri, 9AM-6PM EST",
-      value: "+91 8829975919
-",
+      value: "+91 8829975919",
       action: "Call Now",
       link: "tel:+15551234567",
     },
