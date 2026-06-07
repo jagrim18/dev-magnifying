@@ -52,9 +52,9 @@ export function ContactPage() {
       icon: Mail,
       title: "Email",
       description: "We reply within 24 hours",
-      value: "info@magnifyingsolutions.com",
+      value: "support@magnifyingsolutions.com",
       action: "Send Email",
-      link: "mailto:info@magnifyingsolutions.com",
+      link: "mailto:support@magnifyingsolutions.com",
     },
     {
       icon: Phone,
