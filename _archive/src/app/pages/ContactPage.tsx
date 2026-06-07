@@ -46,7 +46,7 @@ export function ContactPage() {
       description: "Get instant responses",
       value: "+91 8829975919",
       action: "Chat Now",
-      link: "https://wa.me/15551234567",
+      link: "https://wa.me/918829975919",
     },
     {
       icon: Mail,
@@ -62,7 +62,7 @@ export function ContactPage() {
       description: "Mon-Fri, 9AM-6PM EST",
       value: "+91 8829975919",
       action: "Call Now",
-      link: "tel:+15551234567",
+      link: "tel:+918829975919",
     },
   ];
 
@@ -290,7 +290,7 @@ export function ContactPage() {
               <div className="flex flex-wrap justify-center gap-4">
                 <Button asChild size="lg">
                   <a
-                    href="https://wa.me/15551234567"
+                    href="https://wa.me/918829975919"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -299,7 +299,7 @@ export function ContactPage() {
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <a href="tel:+15551234567">
+                  <a href="tel:+918829975919">
                     <Phone className="mr-2 h-5 w-5" />
                     Call Now
                   </a>
