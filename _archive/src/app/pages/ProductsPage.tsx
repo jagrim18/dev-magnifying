@@ -32,6 +32,7 @@ export function ProductsPage() {
           categoryName: p.category?.name || 'Category',
           description: p.description,
           brand: p.brand || '',
+          sku: p.sku || '',
           specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
           image: p.images?.[0] || 'placeholder',
           featured: p.isFeatured
@@ -173,7 +174,7 @@ function ProductCard({ product }: { product: any }) {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     api.post("/analytics/inquiry", { productId: product.id }).catch(console.error);
-    const message = `Hi, I'm interested in the ${product.name}. Can you provide more details?`;
+    const message = `Hi, I'm interested in the ${product.name} (Serial Number: ${product.sku || 'N/A'}). Can you provide more details?`;
     window.open(
       `https://wa.me/918829975919?text=${encodeURIComponent(message)}`,
       "_blank"

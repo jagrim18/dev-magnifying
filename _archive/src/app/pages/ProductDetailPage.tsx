@@ -29,6 +29,7 @@ export function ProductDetailPage() {
           category: p.category?.slug || p.category,
           categoryName: p.category?.name || 'Category',
           description: p.description,
+          sku: p.sku || '',
           specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
           image: p.images?.[0] || 'placeholder',
           featured: p.isFeatured
@@ -88,7 +89,7 @@ export function ProductDetailPage() {
 
   const handleWhatsAppInquiry = () => {
     api.post("/analytics/inquiry", { productId: product.id }).catch(console.error);
-    const message = `Hi, I'm interested in the ${product.name} (Product ID: ${product.id}). Can you provide pricing and availability?`;
+    const message = `Hi, I'm interested in the ${product.name} (Serial Number: ${product.sku || 'N/A'}). Can you provide pricing and availability?`;
     window.open(
       `https://wa.me/918829975919?text=${encodeURIComponent(message)}`,
       "_blank"
@@ -139,6 +140,11 @@ export function ProductDetailPage() {
               <h1 className="text-4xl font-semibold tracking-tight">
                 {product.name}
               </h1>
+              {product.sku && (
+                <div className="text-sm text-muted-foreground">
+                  Serial Number (SKU): <span className="font-medium text-foreground">{product.sku}</span>
+                </div>
+              )}
               {product.featured && (
                 <div className="inline-flex items-center gap-2 bg-primary/5 text-primary px-4 py-2 rounded-full text-sm font-medium">
                   <Check className="h-4 w-4" />

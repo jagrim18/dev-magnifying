@@ -72,6 +72,7 @@ export function AdminDashboard() {
         categoryName: p.category?.name || 'Category',
         description: p.description,
         brand: p.brand || '',
+        sku: p.sku || '',
         specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
         image: p.images?.[0] || 'placeholder',
         featured: p.isFeatured
@@ -89,6 +90,7 @@ export function AdminDashboard() {
     name: "",
     category: "",
     brand: "",
+    sku: "",
     description: "",
     specs: "",
     image: "",
@@ -110,6 +112,7 @@ export function AdminDashboard() {
         name: formData.name,
         category: formData.category,
         brand: formData.brand,
+        sku: formData.sku,
         description: formData.description,
         specifications: specsArray,
         images: [formData.image],
@@ -158,6 +161,7 @@ export function AdminDashboard() {
         name: formData.name,
         category: formData.category,
         brand: formData.brand,
+        sku: formData.sku,
         description: formData.description,
         specifications: specsArray,
         images: [formData.image],
@@ -189,6 +193,7 @@ export function AdminDashboard() {
       name: product.name,
       category: product.category,
       brand: product.brand || "",
+      sku: product.sku || "",
       description: product.description,
       specs: product.specs.join("\n"),
       image: product.image,
@@ -202,6 +207,7 @@ export function AdminDashboard() {
       name: "",
       category: "",
       brand: "",
+      sku: "",
       description: "",
       specs: "",
       image: "",
@@ -609,6 +615,17 @@ function ProductForm({
           onChange={handleChange}
           required
           placeholder="e.g., 15.6 FHD LCD Display"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="sku">Serial Number</Label>
+        <Input
+          id="sku"
+          name="sku"
+          value={formData.sku}
+          onChange={handleChange}
+          placeholder="e.g., SN-123456"
         />
       </div>
 
