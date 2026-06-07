@@ -6,7 +6,6 @@ import { Card } from "../components/ui/card";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { motion } from "motion/react";
 import api from "../../api";
-import { products as mockProducts, categories as mockCategories } from "../data/products";
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,25 +17,36 @@ export function ProductDetailPage() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const p = mockProducts.find(prod => prod.id === id);
-        if (!p) {
-          setProduct(null);
-          setIsLoading(false);
-          return;
-        }
-
+        const [productRes, allProductsRes] = await Promise.all([
+          api.get(`/products/${id}`),
+          api.get('/products')
+        ]);
+        
+        const p = productRes.data;
         const fetchedProduct = {
-          ...p,
-          categoryName: mockCategories.find(c => c.id === p.category)?.name || 'Category',
+          id: p._id,
+          name: p.name,
+          category: p.category?.slug || p.category,
+          categoryName: p.category?.name || 'Category',
+          description: p.description,
+          specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
+          image: p.images?.[0] || 'placeholder',
+          featured: p.isFeatured
         };
         setProduct(fetchedProduct);
         
         // Find related products in the same category
-        const related = mockProducts
-          .filter((item: any) => item.category === p.category && item.id !== p.id)
+        const related = allProductsRes.data
+          .filter((item: any) => 
+            (item.category?.slug === fetchedProduct.category || item.category === fetchedProduct.category) && 
+            item._id !== fetchedProduct.id
+          )
           .slice(0, 3)
           .map((item: any) => ({
-            ...item,
+            id: item._id,
+            name: item.name,
+            description: item.description,
+            image: item.images?.[0] || 'placeholder'
           }));
         
         setRelatedProducts(related);

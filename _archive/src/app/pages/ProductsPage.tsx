@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { motion } from "motion/react";
 import api from "../../api";
-import { products as mockProducts, categories as mockCategories } from "../data/products";
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,13 +20,32 @@ export function ProductsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedProducts = mockProducts.map((p: any) => ({
-          ...p,
-          categoryName: mockCategories.find(c => c.id === p.category)?.name || 'Category',
+        const [productsRes, categoriesRes] = await Promise.all([
+          api.get('/products'),
+          api.get('/categories')
+        ]);
+        
+        const fetchedProducts = productsRes.data.map((p: any) => ({
+          id: p._id,
+          name: p.name,
+          category: p.category?.slug || p.category,
+          categoryName: p.category?.name || 'Category',
+          description: p.description,
+          brand: p.brand || '',
+          specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
+          image: p.images?.[0] || 'placeholder',
+          featured: p.isFeatured
         }));
         
+        const fetchedCategories = categoriesRes.data.map((c: any) => ({
+          id: c.slug,
+          name: c.name,
+          description: c.description,
+          icon: 'Monitor'
+        }));
+
         setProducts(fetchedProducts);
-        setCategories(mockCategories);
+        setCategories(fetchedCategories);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
