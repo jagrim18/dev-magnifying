@@ -122,8 +122,9 @@ export function AdminDashboard() {
       setIsAddDialogOpen(false);
       resetForm();
       fetchData();
-    } catch (err) {
-      toast.error("Failed to add product");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to add product";
+      toast.error(errorMessage);
     }
   };
 
@@ -134,8 +135,9 @@ export function AdminDashboard() {
       setIsAddCategoryDialogOpen(false);
       setCategoryFormData({ name: "", description: "" });
       fetchData();
-    } catch (err) {
-      toast.error("Failed to add category");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to add category";
+      toast.error(errorMessage);
     }
   };
 
@@ -172,8 +174,9 @@ export function AdminDashboard() {
       setSelectedProduct(null);
       resetForm();
       fetchData();
-    } catch (err) {
-      toast.error("Failed to update product");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to update product";
+      toast.error(errorMessage);
     }
   };
 
