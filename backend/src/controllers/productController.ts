@@ -39,7 +39,7 @@ import Category from '../models/Category';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    let { category, brand, sku, ...rest } = req.body;
+    let { category, brand, sku, images, ...rest } = req.body;
     
     // Auto-generate sku if missing
     if (!sku) {
@@ -50,38 +50,66 @@ export const createProduct = async (req: Request, res: Response) => {
       brand = 'Generic';
     }
 
+    // Filter empty strings from images
+    if (images && Array.isArray(images)) {
+      images = images.filter(img => img && img.trim() !== "");
+    }
+
     // Resolve category slug to ObjectId if needed
     if (category && !mongoose.Types.ObjectId.isValid(category)) {
       const cat = await Category.findOne({ slug: category });
       if (cat) {
         category = cat._id;
+      } else {
+        return res.status(400).json({ message: `Category not found for slug: ${category}` });
       }
     }
 
-    const product = await Product.create({ ...rest, category, brand, sku });
+    const product = await Product.create({ ...rest, category, brand, sku, images });
     res.status(201).json(product);
   } catch (error: any) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((err: any) => err.message);
+      return res.status(400).json({ message: messages.join(', ') });
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: `Invalid ID/Value format: ${error.message}` });
+    }
     res.status(500).json({ message: error.message });
   }
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    let { category, ...rest } = req.body;
+    let { category, images, ...rest } = req.body;
     
+    // Filter empty strings from images
+    if (images && Array.isArray(images)) {
+      images = images.filter(img => img && img.trim() !== "");
+    }
+
     if (category && !mongoose.Types.ObjectId.isValid(category)) {
       const cat = await Category.findOne({ slug: category });
       if (cat) {
         category = cat._id;
+      } else {
+        return res.status(400).json({ message: `Category not found for slug: ${category}` });
       }
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, { ...rest, category }, { new: true });
+    const product = await Product.findByIdAndUpdate(req.params.id, { ...rest, category, images }, { new: true, runValidators: true });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
     res.json(product);
   } catch (error: any) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((err: any) => err.message);
+      return res.status(400).json({ message: messages.join(', ') });
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: `Invalid ID/Value format: ${error.message}` });
+    }
     res.status(500).json({ message: error.message });
   }
 };
