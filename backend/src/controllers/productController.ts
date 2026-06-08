@@ -75,6 +75,9 @@ export const createProduct = async (req: Request, res: Response) => {
     if (error.name === 'CastError') {
       return res.status(400).json({ message: `Invalid ID/Value format: ${error.message}` });
     }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `Duplicate value entered for ${Object.keys(error.keyValue)} field` });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -109,6 +112,9 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
     if (error.name === 'CastError') {
       return res.status(400).json({ message: `Invalid ID/Value format: ${error.message}` });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `Duplicate value entered for ${Object.keys(error.keyValue)} field` });
     }
     res.status(500).json({ message: error.message });
   }
