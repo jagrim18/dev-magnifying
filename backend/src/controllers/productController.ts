@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Product from '../models/Product';
 
+const productCache = new Map<string, { expiry: number; data: any }>();
+const CACHE_TTL = 60 * 1000; // 1 minute
+
+export const clearProductCache = () => productCache.clear();
+
 export const getProducts = async (req: Request, res: Response) => {
   try {
     const { category, search, isFeatured } = req.query;
@@ -16,8 +21,46 @@ export const getProducts = async (req: Request, res: Response) => {
       ];
     }
 
-    const products = await Product.find(query).populate('category', 'name slug');
-    res.json(products);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
+
+    const cacheKey = JSON.stringify({ category, search, isFeatured, page, limit });
+    const cached = productCache.get(cacheKey);
+    if (cached && cached.expiry > Date.now()) {
+      res.set('x-total-count', cached.data.total.toString());
+      res.set('x-total-pages', Math.ceil(cached.data.total / limit).toString());
+      res.set('x-current-page', page.toString());
+      res.set('x-cache', 'HIT');
+      return res.json(cached.data.products);
+    }
+
+    const products = await Product.find(query)
+      .populate('category', 'name slug')
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const formattedProducts = products.map((p: any) => {
+      p.id = p._id.toString();
+      if (p.category && p.category._id) {
+        p.category.id = p.category._id.toString();
+      }
+      return p;
+    });
+
+    const total = await Product.countDocuments(query);
+    
+    productCache.set(cacheKey, {
+      expiry: Date.now() + CACHE_TTL,
+      data: { products: formattedProducts, total }
+    });
+
+    res.set('x-total-count', total.toString());
+    res.set('x-total-pages', Math.ceil(total / limit).toString());
+    res.set('x-current-page', page.toString());
+
+    res.json(formattedProducts);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -66,6 +109,7 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     const product = await Product.create({ ...rest, category, brand, sku, images });
+    clearProductCache();
     res.status(201).json(product);
   } catch (error: any) {
     if (error.name === 'ValidationError') {
@@ -104,6 +148,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
+    clearProductCache();
     res.json(product);
   } catch (error: any) {
     if (error.name === 'ValidationError') {
@@ -126,6 +171,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
+    clearProductCache();
     res.json({ message: 'Product removed' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

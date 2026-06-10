@@ -1,28 +1,12 @@
 import express, { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
+import sharp from 'sharp';
 import { protect } from '../middleware/auth';
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename(req, file, cb) {
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
+const storage = multer.memoryStorage();
 
 function checkFileType(file: any, cb: any) {
   const filetypes = /jpg|jpeg|png|webp/;
@@ -43,21 +27,23 @@ const upload = multer({
   },
 });
 
-router.post('/', protect, upload.single('image'), (req: Request, res: Response): void => {
+router.post('/', protect, upload.single('image'), async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.file) {
       res.status(400).json({ message: 'No file uploaded' });
       return;
     }
 
-    // Assuming server runs on localhost:5000 in dev
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const fullUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+    const compressedBuffer = await sharp(req.file.buffer)
+      .resize(500)
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const base64Image = `data:image/webp;base64,${compressedBuffer.toString('base64')}`;
 
     res.json({
-      message: 'Image uploaded successfully',
-      url: fullUrl,
+      message: 'Image processed successfully',
+      url: base64Image,
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Upload failed' });

@@ -12,17 +12,17 @@ export interface IProduct extends Document {
 }
 
 const ProductSchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, index: true },
   description: { type: String, required: true },
-  category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-  brand: { type: String, required: true },
+  category: { type: Schema.Types.ObjectId, ref: 'Category', required: true, index: true },
+  brand: { type: String, required: true, index: true },
   sku: { type: String, required: true, unique: true },
   images: [{ type: String }],
   specifications: [{ 
     key: { type: String, required: true },
     value: { type: String, required: true }
   }],
-  isFeatured: { type: Boolean, default: false }
+  isFeatured: { type: Boolean, default: false, index: true }
 }, {
   timestamps: true
 });
