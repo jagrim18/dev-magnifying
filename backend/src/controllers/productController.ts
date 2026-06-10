@@ -36,15 +36,23 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 
     const products = await Product.find(query)
-      .populate('category', 'name slug')
       .skip(skip)
       .limit(limit)
       .lean();
 
+    const allCategories = await Category.find().lean();
+    const categoryMap = new Map();
+    allCategories.forEach(c => {
+      categoryMap.set(c._id.toString(), { id: c._id.toString(), name: c.name, slug: c.slug });
+    });
+
     const formattedProducts = products.map((p: any) => {
       p.id = p._id.toString();
-      if (p.category && p.category._id) {
-        p.category.id = p.category._id.toString();
+      if (p.category && mongoose.Types.ObjectId.isValid(p.category.toString())) {
+        const cat = categoryMap.get(p.category.toString());
+        if (cat) {
+          p.category = cat;
+        }
       }
       return p;
     });
@@ -68,9 +76,16 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const getProductById = async (req: Request, res: Response) => {
   try {
-    const product = await Product.findById(req.params.id).populate('category', 'name slug');
+    const product = await Product.findById(req.params.id).lean();
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
+    }
+    
+    if (product.category && mongoose.Types.ObjectId.isValid(product.category.toString())) {
+      const cat = await Category.findById(product.category).select('name slug').lean();
+      if (cat) {
+        (product as any).category = { id: cat._id.toString(), name: cat.name, slug: cat.slug };
+      }
     }
     res.json(product);
   } catch (error: any) {
