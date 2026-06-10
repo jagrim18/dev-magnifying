@@ -51,10 +51,10 @@ export function ContactPage() {
     {
       icon: Mail,
       title: "Email",
-      description: "We reply within 24 hours",
-      value: "support@magnifyingsolutions.com",
+      description: "Online support 24/7",
+      value: "agrim@gmail.com",
       action: "Send Email",
-      link: "mailto:support@magnifyingsolutions.com",
+      link: "mailto:agrim@gmail.com",
     },
     {
       icon: Phone,
@@ -173,7 +173,7 @@ export function ContactPage() {
                       type="tel"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+91 88299 75919"
                     />
                   </div>
                   <div className="space-y-2">

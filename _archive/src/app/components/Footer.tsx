@@ -78,7 +78,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-muted-foreground">
                 <Mail className="h-5 w-5 shrink-0 mt-0.5" />
-                <span>info@magnifyingsolutions.com</span>
+                <span>agrim@gmail.com</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-muted-foreground">
                 <Phone className="h-5 w-5 shrink-0 mt-0.5" />

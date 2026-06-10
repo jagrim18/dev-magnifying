@@ -531,7 +531,7 @@ export function HomePage() {
                 className="text-base px-8"
               >
                 <a
-                  href="https://wa.me/15551234567"
+                  href="https://wa.me/918829975919"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -545,7 +545,7 @@ export function HomePage() {
                 variant="outline"
                 className="text-base px-8 bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <a href="mailto:info@magnifyingsolutions.com">
+                <a href="mailto:agrim@gmail.com">
                   <Mail className="mr-2 h-5 w-5" />
                   Email Us
                 </a>
@@ -556,7 +556,7 @@ export function HomePage() {
                 variant="outline"
                 className="text-base px-8 bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                <a href="tel:+15551234567">
+                <a href="tel:+918829975919">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Now
                 </a>

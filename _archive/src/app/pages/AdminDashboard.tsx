@@ -105,9 +105,15 @@ export function AdminDashboard() {
       setProducts(fetchedProducts);
       setCategories(categoriesRes.data.map((c: any) => ({ id: c.slug, name: c.name, description: c.description })));
       setAnalytics(analyticsRes.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to fetch data");
+      if (err.response?.status === 401) {
+        localStorage.removeItem('adminToken');
+        setIsAuthenticated(false);
+        toast.error("Session expired. Please log in again.");
+      } else {
+        toast.error("Failed to fetch data");
+      }
     }
   };
 
@@ -893,7 +899,7 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="admin@magnifyingsolutions.com"
+                placeholder="agrim@gmail.com"
                 className="h-11"
               />
             </div>
