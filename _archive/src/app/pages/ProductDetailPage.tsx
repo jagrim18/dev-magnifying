@@ -23,15 +23,39 @@ export function ProductDetailPage() {
         ]);
         
         const p = productRes.data;
+        
+        let specs = [];
+        if (Array.isArray(p.specifications)) {
+          specs = p.specifications.map((s: any) => {
+            if (typeof s === 'string') return s;
+            if (s && s.key) return `${s.key}: ${s.value}`;
+            return '';
+          }).filter(Boolean);
+        } else if (typeof p.specifications === 'string') {
+          specs = [p.specifications];
+        }
+
+        let image = 'placeholder';
+        if (p.images && p.images.length > 0) {
+          image = p.images[0];
+        } else if (p.image) {
+          image = p.image;
+        } else if (p.imageUrl) {
+          image = p.imageUrl;
+        }
+
+        const categorySlug = p.category?.slug || (typeof p.category === 'string' ? p.category : '');
+        const categoryName = p.category?.name || (typeof p.category === 'string' ? p.category : 'Category');
+
         const fetchedProduct = {
-          id: p._id,
+          id: p._id || p.id,
           name: p.name,
-          category: p.category?.slug || p.category,
-          categoryName: p.category?.name || 'Category',
+          category: categorySlug,
+          categoryName: categoryName,
           description: p.description,
           sku: p.sku || '',
-          specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
-          image: p.images?.[0] || 'placeholder',
+          specs: specs,
+          image: image,
           featured: p.isFeatured
         };
         setProduct(fetchedProduct);
@@ -43,12 +67,23 @@ export function ProductDetailPage() {
             item._id !== fetchedProduct.id
           )
           .slice(0, 3)
-          .map((item: any) => ({
-            id: item._id,
-            name: item.name,
-            description: item.description,
-            image: item.images?.[0] || 'placeholder'
-          }));
+          .map((item: any) => {
+            let image = 'placeholder';
+            if (item.images && item.images.length > 0) {
+              image = item.images[0];
+            } else if (item.image) {
+              image = item.image;
+            } else if (item.imageUrl) {
+              image = item.imageUrl;
+            }
+            
+            return {
+              id: item._id || item.id,
+              name: item.name,
+              description: item.description,
+              image: image
+            };
+          });
         
         setRelatedProducts(related);
       } catch (error) {

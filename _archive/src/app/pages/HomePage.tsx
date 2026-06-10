@@ -38,14 +38,28 @@ export function HomePage() {
         const fetchedFeatured = productsRes.data
           .filter((p: any) => p.isFeatured)
           .slice(0, 6)
-          .map((p: any) => ({
-            id: p._id,
-            name: p.name,
-            category: p.category?.slug || p.category,
-            categoryName: p.category?.name || 'Category',
-            description: p.description,
-            image: p.images?.[0] || 'placeholder'
-          }));
+          .map((p: any) => {
+            let image = 'placeholder';
+            if (p.images && p.images.length > 0) {
+              image = p.images[0];
+            } else if (p.image) {
+              image = p.image;
+            } else if (p.imageUrl) {
+              image = p.imageUrl;
+            }
+
+            const categorySlug = p.category?.slug || (typeof p.category === 'string' ? p.category : '');
+            const categoryName = p.category?.name || (typeof p.category === 'string' ? p.category : 'Category');
+
+            return {
+              id: p._id || p.id,
+              name: p.name,
+              category: categorySlug,
+              categoryName: categoryName,
+              description: p.description,
+              image: image
+            };
+          });
         
         const fetchedCategories = categoriesRes.data.map((c: any) => ({
           id: c.slug,

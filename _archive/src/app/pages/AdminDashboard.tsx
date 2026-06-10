@@ -65,18 +65,43 @@ export function AdminDashboard() {
         api.get('/categories'),
         api.get('/analytics/stats')
       ]);
-      const fetchedProducts = productsRes.data.map((p: any) => ({
-        id: p._id,
-        name: p.name,
-        category: p.category?.slug || p.category,
-        categoryName: p.category?.name || 'Category',
-        description: p.description,
-        brand: p.brand || '',
-        sku: p.sku || '',
-        specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
-        image: p.images?.[0] || 'placeholder',
-        featured: p.isFeatured
-      }));
+      const fetchedProducts = productsRes.data.map((p: any) => {
+        let specs = [];
+        if (Array.isArray(p.specifications)) {
+          specs = p.specifications.map((s: any) => {
+            if (typeof s === 'string') return s;
+            if (s && s.key) return `${s.key}: ${s.value}`;
+            return '';
+          }).filter(Boolean);
+        } else if (typeof p.specifications === 'string') {
+          specs = [p.specifications];
+        }
+
+        let image = 'placeholder';
+        if (p.images && p.images.length > 0) {
+          image = p.images[0];
+        } else if (p.image) {
+          image = p.image;
+        } else if (p.imageUrl) {
+          image = p.imageUrl;
+        }
+
+        const categorySlug = p.category?.slug || (typeof p.category === 'string' ? p.category : '');
+        const categoryName = p.category?.name || (typeof p.category === 'string' ? p.category : 'Category');
+
+        return {
+          id: p._id || p.id,
+          name: p.name,
+          category: categorySlug,
+          categoryName: categoryName,
+          description: p.description,
+          brand: p.brand || '',
+          sku: p.sku || '',
+          specs: specs,
+          image: image,
+          featured: p.isFeatured
+        };
+      });
       setProducts(fetchedProducts);
       setCategories(categoriesRes.data.map((c: any) => ({ id: c.slug, name: c.name, description: c.description })));
       setAnalytics(analyticsRes.data);

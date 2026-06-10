@@ -25,18 +25,46 @@ export function ProductsPage() {
           api.get('/categories')
         ]);
         
-        const fetchedProducts = productsRes.data.map((p: any) => ({
-          id: p._id,
-          name: p.name,
-          category: p.category?.slug || p.category,
-          categoryName: p.category?.name || 'Category',
-          description: p.description,
-          brand: p.brand || '',
-          sku: p.sku || '',
-          specs: p.specifications?.map((s: any) => `${s.key}: ${s.value}`) || [],
-          image: p.images?.[0] || 'placeholder',
-          featured: p.isFeatured
-        }));
+        const fetchedProducts = productsRes.data.map((p: any) => {
+          // Handle CSV imported specifications which might be array of strings
+          let specs = [];
+          if (Array.isArray(p.specifications)) {
+            specs = p.specifications.map((s: any) => {
+              if (typeof s === 'string') return s;
+              if (s && s.key) return `${s.key}: ${s.value}`;
+              return '';
+            }).filter(Boolean);
+          } else if (typeof p.specifications === 'string') {
+            specs = [p.specifications];
+          }
+
+          // Handle CSV imported image which might be under 'image' or 'imageUrl'
+          let image = 'placeholder';
+          if (p.images && p.images.length > 0) {
+            image = p.images[0];
+          } else if (p.image) {
+            image = p.image;
+          } else if (p.imageUrl) {
+            image = p.imageUrl;
+          }
+
+          // Handle CSV imported category which might just be a string instead of object
+          const categorySlug = p.category?.slug || (typeof p.category === 'string' ? p.category : '');
+          const categoryName = p.category?.name || (typeof p.category === 'string' ? p.category : 'Category');
+
+          return {
+            id: p.id || p._id,
+            name: p.name,
+            category: categorySlug,
+            categoryName: categoryName,
+            description: p.description,
+            brand: p.brand || '',
+            sku: p.sku || '',
+            specs: specs,
+            image: image,
+            featured: p.isFeatured
+          };
+        });
         
         const fetchedCategories = categoriesRes.data.map((c: any) => ({
           id: c.slug,
