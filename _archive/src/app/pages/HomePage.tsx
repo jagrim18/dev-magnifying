@@ -68,8 +68,27 @@ export function HomePage() {
           icon: 'Monitor'
         }));
 
+        const allCategoriesMap = new Map();
+        
+        fetchedCategories.forEach((c: any) => {
+          allCategoriesMap.set(c.name.toLowerCase(), c);
+        });
+
+        productsRes.data.forEach((p: any) => {
+          const catName = p.category?.name || (typeof p.category === 'string' ? p.category : null);
+          if (catName && catName !== 'Category' && !allCategoriesMap.has(catName.toLowerCase())) {
+            const generatedSlug = catName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            allCategoriesMap.set(catName.toLowerCase(), {
+              id: generatedSlug,
+              name: catName,
+              description: `${catName} products`,
+              icon: 'Monitor'
+            });
+          }
+        });
+
         setFeaturedProducts(fetchedFeatured);
-        setCategories(fetchedCategories);
+        setCategories(Array.from(allCategoriesMap.values()));
       } catch (error) {
         console.error("Failed to fetch home page data:", error);
       }

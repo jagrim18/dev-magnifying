@@ -73,8 +73,30 @@ export function ProductsPage() {
           icon: 'Monitor'
         }));
 
+        // Dynamically extract categories from products that aren't in the DB yet
+        const allCategoriesMap = new Map();
+        
+        fetchedCategories.forEach((c: any) => {
+          allCategoriesMap.set(c.name.toLowerCase(), c);
+        });
+
+        fetchedProducts.forEach((p: any) => {
+          const catName = p.categoryName;
+          if (catName && catName !== 'Category' && !allCategoriesMap.has(catName.toLowerCase())) {
+            const generatedSlug = catName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            allCategoriesMap.set(catName.toLowerCase(), {
+              id: generatedSlug,
+              name: catName,
+              description: `${catName} products`,
+              icon: 'Monitor'
+            });
+            // Update product category slug to match the generated one so filtering works
+            p.category = generatedSlug;
+          }
+        });
+
         setProducts(fetchedProducts);
-        setCategories(fetchedCategories);
+        setCategories(Array.from(allCategoriesMap.values()));
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -85,6 +107,8 @@ export function ProductsPage() {
   }, []);
 
   const filteredProducts = useMemo(() => {
+    const selectedCategoryObj = categories.find(c => c.id === categoryFilter);
+
     return products.filter((product) => {
       const matchesSearch =
         searchQuery === "" ||
@@ -93,11 +117,17 @@ export function ProductsPage() {
         (product.brand && product.brand.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesCategory =
-        categoryFilter === "all" || product.category === categoryFilter;
+        categoryFilter === "all" || 
+        product.category === categoryFilter ||
+        (selectedCategoryObj && (
+          product.categoryName?.toLowerCase() === selectedCategoryObj.name.toLowerCase() ||
+          product.category?.toLowerCase() === selectedCategoryObj.name.toLowerCase() ||
+          product.category?.toLowerCase() === selectedCategoryObj.id.toLowerCase()
+        ));
 
       return matchesSearch && matchesCategory;
     });
-  }, [products, searchQuery, categoryFilter]);
+  }, [products, searchQuery, categoryFilter, categories]);
 
   const handleCategoryChange = (value: string) => {
     if (value === "all") {
