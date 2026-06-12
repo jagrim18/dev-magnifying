@@ -35,6 +35,11 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+// Endpoint for UptimeRobot to ping and keep the backend awake
+app.get('/api/keep-alive', (req, res) => {
+  res.status(200).json({ message: 'Backend is awake' });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
